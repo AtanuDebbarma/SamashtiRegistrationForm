@@ -14,8 +14,8 @@ export const RegistrationFormHeader = ({
     width: 96, // Match w-24 (24 * 4px = 96px)
     height: 112, // Match h-28 (28 * 4px = 112px)
     aspect: 1 / 1,
-    x:150,
-    y:150,
+    x: 150,
+    y: 150,
   });
   const [tempCroppedImage, setTempCroppedImage] = useState(null);
   const fileInputRef = useRef(null);
@@ -123,10 +123,7 @@ export const RegistrationFormHeader = ({
               onChange={handleFileChange}
               accept="image/*"
             />
-            <div
-              className={"transition-all duration-200"}
-              style={imageError ? { border: "2px solid #EF4444" } : undefined}
-            >
+            <div className={"transition-all duration-200"}>
               {croppedImage ? (
                 <img
                   src={croppedImage}
@@ -134,7 +131,12 @@ export const RegistrationFormHeader = ({
                   className="w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 object-cover rounded-md"
                 />
               ) : (
-                <div className="border-2 border-gray-400 w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 flex flex-col items-center justify-center">
+                <div
+                  className="border-2 border-gray-400 w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 flex flex-col items-center justify-center"
+                  style={
+                    imageError ? { border: "2px solid #EF4444" } : undefined
+                  }
+                >
                   <p className="text-gray-500 font-bold text-sm xxs:text-base sm:text-lg">
                     PHOTO
                   </p>
@@ -145,7 +147,7 @@ export const RegistrationFormHeader = ({
               )}
             </div>
             {imageError && (
-              <p className="text-red-500 text-xs xxs:text-sm sm:text-base">
+              <p className="text-red-500 text-[12px] mt-1 ">
                 Photo is required
               </p>
             )}

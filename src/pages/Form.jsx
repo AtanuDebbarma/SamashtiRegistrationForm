@@ -74,9 +74,12 @@ const SamashtiRegistrationForm = () => {
   const validateForm = () => {
     let newErrors = {};
 
-    // Required fields (excluding OfficeUseSection)
+    // Required fields (excluding OfficeUseSection, registrationNo, and mother-related fields)
     const requiredFields = Object.keys(formData).filter(
-      (key) => !key.startsWith("office")
+      (key) =>
+        !key.startsWith("office") &&
+        key !== "registrationNo" &&
+        !key.startsWith("mother")
     );
 
     requiredFields.forEach((field) => {
@@ -94,7 +97,6 @@ const SamashtiRegistrationForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
-
   useEffect(() => {
     if (croppedImage) {
       setImageError(false);
