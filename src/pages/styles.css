@@ -1,0 +1,9 @@
+#registration_form {
+  width: 297mm;
+  min-height: 420mm;
+  margin: 0 auto;
+  padding: 20mm;
+  box-sizing: border-box;
+  font-size: 12px;
+  line-height: 1.5;
+}
