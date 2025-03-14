@@ -13,24 +13,14 @@ export const RegistrationFormHeader = ({
     unit: "px", // Use pixels for precision
     width: 96, // Match w-24 (24 * 4px = 96px)
     height: 112, // Match h-28 (28 * 4px = 112px)
-    x: 0, // Will be updated dynamically
-    y: 0, // Will be updated dynamically
     aspect: 1 / 1,
+    x:150,
+    y:150,
   });
   const [tempCroppedImage, setTempCroppedImage] = useState(null);
   const fileInputRef = useRef(null);
   const imgRef = useRef(null);
   const modalRef = useRef(null);
-
-  // Center crop dynamically once the image is loaded
-  const onImageLoad = (e) => {
-    const { width, height } = e.currentTarget;
-    setCrop((prevCrop) => ({
-      ...prevCrop,
-      x: (width - prevCrop.width) / 2,
-      y: (height - prevCrop.height) / 2,
-    }));
-  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -51,11 +41,6 @@ export const RegistrationFormHeader = ({
       const croppedImageUrl = getCroppedImg(imgRef.current, crop);
       setTempCroppedImage(croppedImageUrl); // Store it temporarily
     }
-  };
-  const handleCropSubmit = () => {
-    setCroppedImage(tempCroppedImage);
-    setImage(null);
-    setTempCroppedImage(null);
   };
 
   const getCroppedImg = (image, crop) => {
@@ -116,13 +101,10 @@ export const RegistrationFormHeader = ({
               </p>
               <div className="text-[#1d1d36] mt-2 space-y-1">
                 <p className="text-sm xxs:text-base sm:text-lg font-bold">
-                  CBSE AFFILIATED
+                  ICSE BOARD AFFILIATED
                 </p>
                 <p className="text-sm xxs:text-base sm:text-lg font-bold">
                   Admissions 2025-26
-                </p>
-                <p className="text-xs xxs:text-sm sm:text-base">
-                  REGISTRATION FORM
                 </p>
               </div>
             </div>
@@ -152,10 +134,13 @@ export const RegistrationFormHeader = ({
                   className="w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 object-cover rounded-md"
                 />
               ) : (
-                <div className="border-2 border-gray-400 w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 flex items-center justify-center">
+                <div className="border-2 border-gray-400 w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 flex flex-col items-center justify-center">
                   <p className="text-gray-500 font-bold text-sm xxs:text-base sm:text-lg">
                     PHOTO
                   </p>
+                  <span className="text-gray-500 text-xs xxs:text-sm sm:text-base mt-1">
+                    Click here to upload
+                  </span>
                 </div>
               )}
             </div>
@@ -175,15 +160,12 @@ export const RegistrationFormHeader = ({
                   <ReactCrop
                     src={image}
                     crop={crop}
-                    onChange={(newCrop) => setCrop(newCrop)}
-                    onComplete={handleCropComplete}
+                    onChange={(newCrop) => {
+                      setCrop(newCrop);
+                      handleCropComplete(newCrop); // Manually trigger handleCropComplete
+                    }}
                   >
-                    <img
-                      ref={imgRef}
-                      src={image}
-                      alt="Crop me"
-                      onLoad={onImageLoad}
-                    />
+                    <img ref={imgRef} src={image} alt="Crop me" />
                   </ReactCrop>
                 </div>
                 <div className="flex justify-end gap-4 mt-4">
@@ -194,7 +176,11 @@ export const RegistrationFormHeader = ({
                     Cancel
                   </button>
                   <button
-                    onClick={handleCropSubmit}
+                    onClick={() => {
+                      setCroppedImage(tempCroppedImage);
+                      setImage(null);
+                      setTempCroppedImage(null);
+                    }}
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                   >
                     Confirm Crop
@@ -203,6 +189,11 @@ export const RegistrationFormHeader = ({
               </div>
             </div>
           )}
+        </div>
+        <div className="flex justify-center">
+          <p className="text-lg font-bold text-[#1d1d36] mt-12 bg-white py-2 px-4 rounded-md">
+            REGISTRATION FORM
+          </p>
         </div>
       </div>
     </div>

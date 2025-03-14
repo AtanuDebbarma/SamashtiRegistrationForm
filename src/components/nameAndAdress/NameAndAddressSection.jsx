@@ -5,7 +5,7 @@ const NameAndAddressSection = ({ handleChange, formData, errors }) => {
     <div className="space-y-4 mt-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <InputField
-          label="Registration No. : 2025/"
+          label="Registration No. : 2025/ (To be prrovided by institution)"
           value={formData.registrationNo}
           onChange={(e) => handleChange("registrationNo", e.target.value)}
           errors={errors}
