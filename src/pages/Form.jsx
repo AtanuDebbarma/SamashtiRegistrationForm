@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { Header } from "../components/header/Header";
+import { RegistrationFormHeader } from "../components/header/Header";
 import NameAndAddressSection from "../components/nameAndAdress/NameAndAddressSection";
 import ParentsDetailsSection from "../components/ParentsDetailsSection";
 import AdharSection from "../components/adhar/AdharSection";
@@ -186,7 +186,7 @@ const SamashtiRegistrationForm = () => {
     >
       <div className="w-full max-w-4xl md:w-[90%] lg:w-[85%] bg-white p-6 sm:p-8 md:p-10 shadow-lg rounded-lg">
         {/* Header */}
-        <Header
+        <RegistrationFormHeader
           croppedImage={croppedImage}
           setCroppedImage={setCroppedImage}
           imageError={imageError}

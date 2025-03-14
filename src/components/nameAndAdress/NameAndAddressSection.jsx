@@ -2,7 +2,7 @@ import { InputField } from "../ReusableComponents";
 
 const NameAndAddressSection = ({ handleChange, formData, errors }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <InputField
           label="Registration No. : 2025/"
@@ -54,7 +54,7 @@ const NameAndAddressSection = ({ handleChange, formData, errors }) => {
         name="address"
       />
 
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <InputField
           label="Pin Code : "
           value={formData.pinCode}
