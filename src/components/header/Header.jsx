@@ -10,9 +10,9 @@ export const RegistrationFormHeader = ({
 }) => {
   const [image, setImage] = useState(null);
   const [crop, setCrop] = useState({
-    unit: "px", // Use pixels for precision
-    width: 96, // Match w-24 (24 * 4px = 96px)
-    height: 112, // Match h-28 (28 * 4px = 112px)
+    unit: "px",
+    width: 96,
+    height: 112,
     aspect: 1 / 1,
     x: 150,
     y: 150,
@@ -26,12 +26,8 @@ export const RegistrationFormHeader = ({
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       const reader = new FileReader();
-      reader.onload = () => {
-        setImage(reader.result); // This will trigger modal re-render
-      };
+      reader.onload = () => setImage(reader.result);
       reader.readAsDataURL(selectedFile);
-
-      // Reset file input so selecting the same file again will trigger onChange
       e.target.value = null;
     }
   };
@@ -39,7 +35,7 @@ export const RegistrationFormHeader = ({
   const handleCropComplete = (crop) => {
     if (imgRef.current && crop.width && crop.height) {
       const croppedImageUrl = getCroppedImg(imgRef.current, crop);
-      setTempCroppedImage(croppedImageUrl); // Store it temporarily
+      setTempCroppedImage(croppedImageUrl);
     }
   };
 
@@ -66,19 +62,16 @@ export const RegistrationFormHeader = ({
     return canvas.toDataURL("image/jpeg");
   };
 
-  // Close modal on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setImage(null); // Reset image to close modal
+        setImage(null);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [setImage]);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <div className="text-center">
@@ -111,9 +104,7 @@ export const RegistrationFormHeader = ({
           </div>
 
           <div
-            className={
-              "cursor-pointer active:scale-95 transition-transform duration-150 mt-4 md:mt-0"
-            }
+            className="cursor-pointer active:scale-95 transition-transform duration-150 mt-4 md:mt-0"
             onClick={() => fileInputRef.current.click()}
           >
             <input
@@ -123,7 +114,7 @@ export const RegistrationFormHeader = ({
               onChange={handleFileChange}
               accept="image/*"
             />
-            <div className={"transition-all duration-200"}>
+            <div className="transition-all duration-200">
               {croppedImage ? (
                 <img
                   src={croppedImage}
@@ -147,30 +138,38 @@ export const RegistrationFormHeader = ({
               )}
             </div>
             {imageError && (
-              <p className="text-red-500 text-[12px] mt-1 ">
-                Photo is required
-              </p>
+              <p className="text-red-500 text-[12px] mt-1">Photo is required</p>
             )}
           </div>
           {image && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
               <div
                 ref={modalRef}
-                className="bg-white p-5 rounded-lg w-full max-w-md"
+                className="bg-white p-5 rounded-lg w-full max-w-md max-h-[90vh] flex flex-col"
               >
-                <div className="border-2 border-gray-300 rounded-md overflow-hidden">
-                  <ReactCrop
-                    src={image}
-                    crop={crop}
-                    onChange={(newCrop) => {
-                      setCrop(newCrop);
-                      handleCropComplete(newCrop); // Manually trigger handleCropComplete
-                    }}
-                  >
-                    <img ref={imgRef} src={image} alt="Crop me" />
-                  </ReactCrop>
+                {/* Image Container */}
+                <div className="flex-grow flex justify-center items-center">
+                  <div className="border-2 border-gray-300 rounded-md overflow-hidden">
+                    <ReactCrop
+                      src={image}
+                      crop={crop}
+                      onChange={(newCrop) => {
+                        setCrop(newCrop);
+                        handleCropComplete(newCrop);
+                      }}
+                    >
+                      <img
+                        ref={imgRef}
+                        src={image}
+                        alt="Crop me"
+                        className="max-h-full w-auto object-contain"
+                      />
+                    </ReactCrop>
+                  </div>
                 </div>
-                <div className="flex justify-end gap-4 mt-4">
+
+                {/* Sticky Footer Buttons */}
+                <div className="sticky bottom-0 left-0 w-full bg-white p-3 flex justify-end gap-4 border-t">
                   <button
                     onClick={() => setImage(null)}
                     className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
