@@ -149,7 +149,7 @@ const SamashtiRegistrationForm = () => {
         const formWidth = canvas.width;
         const formHeight = canvas.height;
         // Convert to JPEG for lower file size
-        const imgData = canvas.toDataURL("image/jpeg", 0.85); // Set quality to 85%
+        const imgData = canvas.toDataURL("image/jpeg", 0.9); // Set quality to 90%
 
         const pdf = new jsPDF("p", "mm", "a3");
         const pdfWidth = 297; // A3 width in mm
