@@ -41,7 +41,7 @@ export const InputField = ({
 
 // Reusable Section Component
 export const Section = ({ title, children }) => (
-  <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 space-y-3">
+  <div className="bg-white p-4 sm:p-6 space-y-3">
     {title && <div className="text-lg font-semibold">{title}</div>}
     {children}
   </div>

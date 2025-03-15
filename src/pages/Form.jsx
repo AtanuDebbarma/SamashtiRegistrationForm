@@ -3,19 +3,184 @@ import NameAndAddressSection from "../components/nameAndAdress/NameAndAddressSec
 import ParentsDetailsSection from "../components/ParentsDetailsSection";
 import AdharSection from "../components/adhar/AdharSection";
 import OfficeUseSection from "../components/OfficeUseSection";
-import useRegistrationForm from "../helpers/userRegistartionForm";
+import { useEffect, useState } from "react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const SamashtiRegistrationForm = () => {
-  const {
-    formData,
-    croppedImage,
-    errors,
-    imageError,
-    handleChange,
-    setCroppedImage,
-    handleSubmit,
-  } = useRegistrationForm();
+  // State for form inputs
+  const [formData, setFormData] = useState({
+    registrationNo: "",
+    dateOfBirth: "",
+    name: "",
+    mobileNo: "",
+    whatsappNo: "",
+    address: "",
+    pinCode: "",
+    lastSchool: "",
+    class: "",
+    permanentEducationNo: "",
+    category: "",
+    aadhaarNo: "",
+    fatherName: "",
+    fatherOccupation: "",
+    fatherEducationalQualifications: "",
+    fatherPostGraduation: "",
+    fatherUniversityCollege: "",
+    fatherGraduation: "",
+    fatherIntermediateYear: "",
+    fatherSubject: "",
+    fatherSchoolName: "",
+    fatherHighSchool: "",
+    motherName: "",
+    motherOccupation: "",
+    motherEducationalQualifications: "",
+    motherPostGraduation: "",
+    motherUniversityCollege: "",
+    motherGraduation: "",
+    motherIntermediateYear: "",
+    motherSubject: "",
+    motherSchoolName: "",
+    motherHighSchool: "",
+    officeRegistrationNo: "",
+    officeNameOfChild: "",
+    officeETestOn: "",
+    officeResultsOn: "",
+  });
+  const [croppedImage, setCroppedImage] = useState(null);
+  // Handle input change
+  const [errors, setErrors] = useState({}); // Track errors
+  const [imageError, setImageError] = useState(false);
 
+  // Handle input change
+  const handleChange = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [field]: "",
+      }));
+    }
+  };
+
+  // Validate form before submission
+  const validateForm = () => {
+    let newErrors = {};
+
+    // Required fields (excluding OfficeUseSection, registrationNo, and mother-related fields)
+    const requiredFields = Object.keys(formData).filter(
+      (key) =>
+        !key.startsWith("office") &&
+        key !== "registrationNo" &&
+        !key.startsWith("mother")
+    );
+
+    requiredFields.forEach((field) => {
+      if (!formData[field]) {
+        newErrors[field] = "This field is required";
+      }
+    });
+
+    // Validate croppedImage (Picture)
+    if (!croppedImage) {
+      newErrors.croppedImage = "Photo is required";
+      setImageError(true);
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+  useEffect(() => {
+    if (croppedImage) {
+      setImageError(false);
+    }
+  }, [croppedImage]);
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      console.log("Form has errors.");
+      return;
+    }
+
+    const formElement = document.getElementById("samashti-form");
+    const submitButton = document.getElementById("submit-button");
+    const footer = document.getElementById("footer"); // Get footer element
+
+    if (formElement) {
+      try {
+        // Store original width before modifying
+        footer.style.display = "none"; // Hide footer before capture
+        const originalWidth = formElement.style.width;
+        const originalMaxWidth = formElement.style.maxWidth;
+
+        // Force large screen layout
+        formElement.style.width = "1280px"; // Fixed large screen width
+        formElement.style.maxWidth = "1280px"; // Prevent smaller scaling
+
+        // Temporarily hide submit button for clean screenshot
+        submitButton.style.display = "none";
+
+        // Capture form with html2canvas
+        const canvas = await html2canvas(formElement, {
+          scale: 2, // Lower scale for smaller image size
+          useCORS: true, // Fix missing styles if needed
+          logging: false, // Reduce console logs
+        });
+
+        // Restore form layout after capture
+        formElement.style.width = originalWidth;
+        formElement.style.maxWidth = originalMaxWidth;
+        submitButton.style.display = "block"; // Restore submit button
+        footer.style.display = "block"; // Restore footer
+
+        // Ensure button stays centered
+        submitButton.style.justifyContent = "center";
+        submitButton.style.margin = "auto";
+
+        // Get form width and height
+        const formWidth = canvas.width;
+        const formHeight = canvas.height;
+        // Convert to JPEG for lower file size
+        const imgData = canvas.toDataURL("image/jpeg", 0.85); // Set quality to 85%
+
+        const pdf = new jsPDF("p", "mm", "a3");
+        const pdfWidth = 297; // A3 width in mm
+        const pdfHeight = 420; // A3 height in mm
+
+        // Reduce scaling slightly to prevent label squeezing
+        const scaleFactor =
+          Math.min(pdfWidth / formWidth, pdfHeight / formHeight) * 0.96;
+        const finalWidth = formWidth * scaleFactor;
+        const finalHeight = formHeight * scaleFactor;
+
+        // Centering adjustments
+        const xOffset = (pdfWidth - finalWidth) / 2;
+        const yOffset = (pdfHeight - finalHeight) / 2;
+
+        pdf.addImage(
+          imgData,
+          "JPEG",
+          xOffset,
+          yOffset,
+          finalWidth,
+          finalHeight
+        );
+        pdf.save("Samashti_Registration_Form.pdf");
+
+        console.log("PDF Downloaded!");
+      } catch (error) {
+        console.error("Error generating PDF:", error);
+      }
+    }
+  };
   return (
     <div
       id="samashti-form"
@@ -55,7 +220,10 @@ const SamashtiRegistrationForm = () => {
 
           {/* Submit Button */}
           {imageError && (
-            <p className="text-red-500 text-[12px] flex justify-center text-center" style={{marginTop:'4%'}}>
+            <p
+              className="text-red-500 text-[12px] flex justify-center text-center"
+              style={{ marginTop: "4%" }}
+            >
               Photo is required! Upload from top of the form.
             </p>
           )}
