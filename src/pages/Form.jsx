@@ -6,6 +6,7 @@ import OfficeUseSection from "../components/OfficeUseSection";
 import { useEffect, useState } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import Modal from "../components/Modal";
 
 const SamashtiRegistrationForm = () => {
   // State for form inputs
@@ -51,6 +52,7 @@ const SamashtiRegistrationForm = () => {
   // Handle input change
   const [errors, setErrors] = useState({}); // Track errors
   const [imageError, setImageError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle input change
   const handleChange = (field, value) => {
@@ -95,6 +97,7 @@ const SamashtiRegistrationForm = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
+
   useEffect(() => {
     if (croppedImage) {
       setImageError(false);
@@ -104,75 +107,156 @@ const SamashtiRegistrationForm = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) {
       console.log("Form has errors.");
       return;
     }
 
+    setIsModalOpen(true); // Open the modal on submit
+  };
+
+  const handleDownload = async () => {
+    setIsModalOpen(false); // Close the modal before downloading
     const formElement = document.getElementById("samashti-form");
     const submitButton = document.getElementById("submit-button");
-    const footer = document.getElementById("footer"); // Get footer element
+    const footer = document.getElementById("footer");
+    const officeUseSection = document.getElementById("office-use-section"); // Add an ID to OfficeUseSection
 
-    if (formElement) {
+    if (formElement && officeUseSection) {
       try {
-        // Store original width before modifying
-        footer.style.display = "none"; // Hide footer before capture
-        const originalWidth = formElement.style.width;
-        const originalMaxWidth = formElement.style.maxWidth;
+        // Store original styles before modifying
+        const originalFormStyles = {
+          width: formElement.style.width,
+          maxWidth: formElement.style.maxWidth,
+          display: formElement.style.display,
+          justifyContent: formElement.style.justifyContent,
+        };
+
+        const originalFooterStyles = {
+          display: footer.style.display,
+        };
+
+        const originalOfficeUseSectionStyles = {
+          display: officeUseSection.style.display,
+        };
+
+        const originalSubmitButtonStyles = {
+          display: submitButton.style.display,
+        };
+
+        // Hide footer and OfficeUseSection for Page 1 capture
+        footer.style.display = "none";
+        officeUseSection.style.display = "none";
 
         // Force large screen layout
-        formElement.style.width = "1280px"; // Fixed large screen width
-        formElement.style.maxWidth = "1280px"; // Prevent smaller scaling
+        formElement.style.width = "1024px";
+        formElement.style.maxWidth = "1024px";
+        formElement.style.justifyContent = "flex-start"; // Temporarily align to the left for capture
 
         // Temporarily hide submit button for clean screenshot
         submitButton.style.display = "none";
 
-        // Capture form with html2canvas
-        const canvas = await html2canvas(formElement, {
-          scale: 2, // Lower scale for smaller image size
-          useCORS: true, // Fix missing styles if needed
-          logging: false, // Reduce console logs
+        // Capture Page 1 (without OfficeUseSection)
+        const canvasPage1 = await html2canvas(formElement, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
         });
 
         // Restore form layout after capture
-        formElement.style.width = originalWidth;
-        formElement.style.maxWidth = originalMaxWidth;
-        submitButton.style.display = "block"; // Restore submit button
-        footer.style.display = "block"; // Restore footer
+        formElement.style.width = originalFormStyles.width;
+        formElement.style.maxWidth = originalFormStyles.maxWidth;
+        formElement.style.justifyContent = originalFormStyles.justifyContent;
+        formElement.style.display = originalFormStyles.display;
 
-        // Ensure button stays centered
-        submitButton.style.justifyContent = "center";
-        submitButton.style.margin = "auto";
+        submitButton.style.display = originalSubmitButtonStyles.display;
+        footer.style.display = originalFooterStyles.display;
 
-        // Get form width and height
-        const formWidth = canvas.width;
-        const formHeight = canvas.height;
-        // Convert to JPEG for lower file size
-        const imgData = canvas.toDataURL("image/jpeg", 0.9); // Set quality to 90%
+        // Convert Page 1 to JPEG
+        const imgDataPage1 = canvasPage1.toDataURL("image/jpeg", 0.9);
 
-        const pdf = new jsPDF("p", "mm", "a3");
-        const pdfWidth = 297; // A3 width in mm
-        const pdfHeight = 420; // A3 height in mm
+        // Capture Page 2 (only OfficeUseSection)
+        officeUseSection.style.display = "block"; // Show OfficeUseSection
+        formElement.style.width = "1024px"; // Force large screen layout again
+        formElement.style.maxWidth = "1024px";
+        formElement.style.justifyContent = "flex-start"; // Temporarily align to the left for capture
 
-        // Reduce scaling slightly to prevent label squeezing
-        const scaleFactor =
-          Math.min(pdfWidth / formWidth, pdfHeight / formHeight) * 0.96;
-        const finalWidth = formWidth * scaleFactor;
-        const finalHeight = formHeight * scaleFactor;
+        // Hide all other sections except OfficeUseSection
+        const allSections = formElement.querySelectorAll("section");
+        allSections.forEach((section) => {
+          if (section.id !== "office-use-section") {
+            section.style.display = "none";
+          }
+        });
 
-        // Centering adjustments
-        const xOffset = (pdfWidth - finalWidth) / 2;
-        const yOffset = (pdfHeight - finalHeight) / 2;
+        const canvasPage2 = await html2canvas(officeUseSection, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+        });
+
+        // Restore all sections after capture
+        allSections.forEach((section) => {
+          section.style.display = "block";
+        });
+
+        // Restore form layout after capture
+        formElement.style.width = originalFormStyles.width;
+        formElement.style.maxWidth = originalFormStyles.maxWidth;
+        formElement.style.justifyContent = originalFormStyles.justifyContent;
+        formElement.style.display = originalFormStyles.display;
+
+        officeUseSection.style.display = originalOfficeUseSectionStyles.display;
+
+        // Convert Page 2 to JPEG
+        const imgDataPage2 = canvasPage2.toDataURL("image/jpeg", 0.9);
+
+        // Create PDF
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pdfWidth = 210; // A4 width in mm
+        const pdfHeight = 297; // A4 height in mm
+
+        // Add Page 1
+        const scaleFactorPage1 =
+          Math.min(
+            pdfWidth / canvasPage1.width,
+            pdfHeight / canvasPage1.height
+          ) * 0.96;
+        const finalWidthPage1 = canvasPage1.width * scaleFactorPage1;
+        const finalHeightPage1 = canvasPage1.height * scaleFactorPage1;
+        const xOffsetPage1 = (pdfWidth - finalWidthPage1) / 2;
+        const yOffsetPage1 = (pdfHeight - finalHeightPage1) / 2;
 
         pdf.addImage(
-          imgData,
+          imgDataPage1,
           "JPEG",
-          xOffset,
-          yOffset,
-          finalWidth,
-          finalHeight
+          xOffsetPage1,
+          yOffsetPage1,
+          finalWidthPage1,
+          finalHeightPage1
         );
+
+        // Add Page 2
+        pdf.addPage();
+        const scaleFactorPage2 =
+          Math.min(
+            pdfWidth / canvasPage2.width,
+            pdfHeight / canvasPage2.height
+          ) * 0.96;
+        const finalWidthPage2 = canvasPage2.width * scaleFactorPage2;
+        const finalHeightPage2 = canvasPage2.height * scaleFactorPage2;
+        const xOffsetPage2 = (pdfWidth - finalWidthPage2) / 2;
+        const yOffsetPage2 = (pdfHeight - finalHeightPage2) / 2 - 70; // Subtract 10mm to move content up
+
+        pdf.addImage(
+          imgDataPage2,
+          "JPEG",
+          xOffsetPage2,
+          yOffsetPage2, // Adjusted yOffset to move content up
+          finalWidthPage2,
+          finalHeightPage2
+        );
+        // Save PDF
         pdf.save("Samashti_Registration_Form.pdf");
 
         console.log("PDF Downloaded!");
@@ -181,12 +265,13 @@ const SamashtiRegistrationForm = () => {
       }
     }
   };
+
   return (
-    <div
-      id="samashti-form"
-      className="min-h-screen bg-gray-100 flex justify-center p-4 sm:p-6 md:p-8 lg:p-10"
-    >
-      <div className="w-full max-w-4xl md:w-[90%] lg:w-[85%] bg-white p-6 sm:p-8 md:p-10 shadow-lg rounded-lg">
+    <div className="min-h-screen bg-gray-100 flex justify-center p-4 sm:p-6 md:p-8 lg:p-10">
+      <div
+        id="samashti-form"
+        className="w-full max-w-4xl md:w-[90%] lg:w-[85%] bg-white p-6 sm:p-8 md:p-10 shadow-lg rounded-lg"
+      >
         {/* Header */}
         <RegistrationFormHeader
           croppedImage={croppedImage}
@@ -211,12 +296,14 @@ const SamashtiRegistrationForm = () => {
             formData={formData}
             errors={errors}
           />
-          <OfficeUseSection
-            handleChange={handleChange}
-            formData={formData}
-            croppedImage={croppedImage}
-            errors={errors}
-          />
+          <div id="office-use-section">
+            <OfficeUseSection
+              handleChange={handleChange}
+              formData={formData}
+              croppedImage={croppedImage}
+              errors={errors}
+            />
+          </div>
 
           {/* Submit Button */}
           {imageError && (
@@ -256,6 +343,13 @@ const SamashtiRegistrationForm = () => {
           </a>
         </div>
       </div>
+      {/* Modal */}
+      {isModalOpen && (
+        <Modal
+          onClose={() => setIsModalOpen(false)}
+          onDownload={handleDownload}
+        />
+      )}
     </div>
   );
 };

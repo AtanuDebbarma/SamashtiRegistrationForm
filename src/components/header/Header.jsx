@@ -11,11 +11,9 @@ export const RegistrationFormHeader = ({
   const [image, setImage] = useState(null);
   const [crop, setCrop] = useState({
     unit: "px",
-    width: 96,
-    height: 112,
-    aspect: 1 / 1,
-    x: 150,
-    y: 150,
+    width: 140,
+    height: 180,
+    aspect: 35 / 45,
   });
   const [tempCroppedImage, setTempCroppedImage] = useState(null);
   const fileInputRef = useRef(null);
@@ -119,11 +117,11 @@ export const RegistrationFormHeader = ({
                 <img
                   src={croppedImage}
                   alt="Cropped"
-                  className="w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 object-cover rounded-md"
+                  className="w-[140px] h-[180px] object-cover rounded-md" // Passport size dimensions
                 />
               ) : (
                 <div
-                  className="border-2 border-gray-400 w-20 h-24 xxs:w-24 xxs:h-28 sm:w-32 sm:h-40 flex flex-col items-center justify-center"
+                  className="border-2 border-gray-400 w-[140px] h-[180px] flex flex-col items-center justify-center mt-6"
                   style={
                     imageError ? { border: "2px solid #EF4444" } : undefined
                   }
@@ -132,7 +130,7 @@ export const RegistrationFormHeader = ({
                     PHOTO
                   </p>
                   <span className="text-gray-500 text-xs xxs:text-sm sm:text-base mt-1">
-                    Click here to upload
+                    Click here to upload (Passport size)
                   </span>
                 </div>
               )}
@@ -157,6 +155,9 @@ export const RegistrationFormHeader = ({
                         setCrop(newCrop);
                         handleCropComplete(newCrop);
                       }}
+                      ruleOfThirds // Optional: Adds a rule-of-thirds grid
+                      minWidth={140} // Minimum width for cropping
+                      minHeight={180} // Minimum height for cropping
                     >
                       <img
                         ref={imgRef}

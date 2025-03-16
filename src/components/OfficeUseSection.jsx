@@ -54,7 +54,11 @@ const OfficeUseSection = ({ handleChange, formData, croppedImage }) => {
 
           {/* Right Side - Photo and Signature */}
           <div className="flex-shrink-0 mt-6 xxxxs:mt-0 xxxxs:ml-4 flex flex-col items-center">
-            <div className="border-2 border-gray-400 w-24 h-28 xxs:w-28 xxs:h-32 sm:w-32 sm:h-40 flex items-center justify-center mb-2 mt-10">
+            {/* Photo Container */}
+            <div
+              className="border-2 border-gray-400 w-[140px] h-[180px] flex items-center justify-center mb-2 mt-10"
+              style={{ aspectRatio: "35/45" }} // Ensure aspect ratio is maintained
+            >
               {croppedImage ? (
                 <img
                   src={croppedImage}
@@ -62,10 +66,16 @@ const OfficeUseSection = ({ handleChange, formData, croppedImage }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <p className="text-center font-bold">PHOTO</p>
+                <div className="w-full flex-column justify-center text-center">
+                  <p className="text-center font-bold">PHOTO</p>
+                  <p className="text-gray-500 text-xs xxs:text-sm sm:text-base mt-1">
+                    (Passport size)
+                  </p>
+                </div>
               )}
             </div>
 
+            {/* Signature Section */}
             <div className="mt-6 flex flex-col xxs:flex-row items-center xxs:justify-end">
               <div className="mr-0 xxs:mr-4"></div>
               <div className="text-center xxs:text-right mt-10">
